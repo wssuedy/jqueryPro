@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+  <style media="screen">
+    .write {
+      display: none;
+      position: fixed;
+      width: 300px;
+      height: 240px;
+      left: 50%;
+      top: 50%;
+      margin-left: -150px;
+      margin-top: -110px;
+      background-color: #eee;
+      border: 2px solid #aaa;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <a class="open-write-dialog" href="#"> write </a>
+  </nav>
+  <div class="article-list">
+
+  </div>
+
+  <div class="write">
+    <p>
+      <input type="text" name="title" value="" placeholder="请输入文章标题">
+    </p>
+    <p>
+      <textarea name="content" style="width:290px;" rows="8" placeholder="请输入内容"></textarea>
+    </p>
+    <p>
+      <button type="button" name="button"> 发布 </button>
+    </p>
+  </div>
+
+  <script type="text/javascript">
+
+
+
+    function generate_html(title, content) {
+      return `
+          <article>
+            <h1>${title}</h1>
+            <p>${content}</p>
+          </article>`;
+    }
+
+
+    const writeDialog = $(".write");
+    const titleInput = $(".write input[name=title]");
+    const contentInput = $(".write textarea");
+    const submitButton = $(".write button");
+    const articleList = $(".article-list");
+
+    const openWriteDialogButton = $(".open-write-dialog");
+
+    $.get("/init_data",function (aritlces) {
+      aritlces.forEach(article=>articleList.append(generate_html(article.title,article.content)));
+    });
+
+    openWriteDialogButton.click(function() {
+      writeDialog.css({
+        display: "block"
+      });
+    });
+
+    submitButton.click(function() {
+      // submit
+      const title = titleInput.val();
+      const content = contentInput.val();
+      titleInput.val("");
+      contentInput.val("");
+
+      articleList.append(generate_html(title,content));
+
+      $.post("/write", {
+        title,
+        content
+      });
+    });
+  </script>
+</body>
+
+</html>
